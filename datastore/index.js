@@ -14,7 +14,7 @@ exports.create = (text, callback) => {
       console.log(err);
     } else {
       items[id] = text;
-      fs.writeFile(`${exports.dataDir}/${id}.txt`, text, (err, data)=> {
+      fs.writeFile(`${exports.dataDir}/${id}.txt`, text, (err, data) => {
         if (err) {
           console.log('err creating file');
         } else {
@@ -27,10 +27,17 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
-  var data = _.map(items, (text, id) => {
-    return { id, text };
+
+  fs.readdir(exports.dataDir, (err, files) => {
+    var data = _.map(files, (file) => {
+      let id = file.slice(0, 5);
+      return {'id': id, 'text': id};
+    });
+
+    callback(null, data);
+
   });
-  callback(null, data);
+
 };
 
 exports.readOne = (id, callback) => {
