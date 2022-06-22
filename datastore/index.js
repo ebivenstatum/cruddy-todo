@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
+const Promise = require('bluebird');
 
 var items = {};
 
@@ -29,12 +30,29 @@ exports.create = (text, callback) => {
 exports.readAll = (callback) => {
 
   fs.readdir(exports.dataDir, (err, files) => {
-    var data = _.map(files, (file) => {
-      let id = file.slice(0, 5);
-      return { 'id': id, 'text': id };
-    });
+    if (err) {
+      callback(err)
+    } else {
 
-    callback(null, data);
+      var data = _.map(files, (file) => {
+        return new Promise((resolve, reject) => {
+          let id = file.slice(0, 5);
+          let text = fs.readFile(`${exports.dataDir}/${id}.txt`, 'utf8', (err, fileData) => {
+            if (err) {
+              reject(err)
+            } else {
+              resolve({ 'id': id, 'text': fileData });
+            }
+          });
+
+        });
+      });
+
+      Promise.all(data).then((value) => {
+        callback(null, value);
+      });
+
+    }
 
   });
 
@@ -98,12 +116,12 @@ exports.delete = (id, callback) => {
   });
 }
 
-  // Config+Initialization code -- DO NOT MODIFY /////////////////////////////////
+// Config+Initialization code -- DO NOT MODIFY /////////////////////////////////
 
-  exports.dataDir = path.join(__dirname, 'data');
+exports.dataDir = path.join(__dirname, 'data');
 
-  exports.initialize = () => {
-    if (!fs.existsSync(exports.dataDir)) {
-      fs.mkdirSync(exports.dataDir);
-    }
-  };
+exports.initialize = () => {
+  if (!fs.existsSync(exports.dataDir)) {
+    fs.mkdirSync(exports.dataDir);
+  }
+};
