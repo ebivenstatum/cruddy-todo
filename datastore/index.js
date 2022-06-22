@@ -31,7 +31,7 @@ exports.readAll = (callback) => {
   fs.readdir(exports.dataDir, (err, files) => {
     var data = _.map(files, (file) => {
       let id = file.slice(0, 5);
-      return {'id': id, 'text': id};
+      return { 'id': id, 'text': id };
     });
 
     callback(null, data);
@@ -42,11 +42,11 @@ exports.readAll = (callback) => {
 
 exports.readOne = (id, callback) => {
 
-  fs.readFile(`${exports.dataDir}/${id}.txt`, 'utf8', (err, data)=> {
+  fs.readFile(`${exports.dataDir}/${id}.txt`, 'utf8', (err, data) => {
     if (err) {
       callback(err);
     } else {
-      callback(null,  {'id': id, 'text': data});
+      callback(null, { 'id': id, 'text': data });
     }
   });
 
@@ -54,12 +54,22 @@ exports.readOne = (id, callback) => {
 
 exports.update = (id, text, callback) => {
   var item = items[id];
-  if (!item) {
-    callback(new Error(`No item with id: ${id}`));
-  } else {
-    items[id] = text;
-    callback(null, { id, text });
-  }
+
+  fs.readFile(`${exports.dataDir}/${id}.txt`, 'utf8', (err, data) => {
+    if (err) {
+      callback(err);
+    } else {
+      fs.writeFile(`${exports.dataDir}/${id}.txt`, text, (err, data) => {
+        if (!item) {
+          callback(new Error(`No item with id: ${id}`));
+        } else {
+          items[id] = text;
+          callback(null, { id, text });
+        }
+      });
+    }
+  });
+
 };
 
 exports.delete = (id, callback) => {
