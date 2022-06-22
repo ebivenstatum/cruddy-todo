@@ -27,6 +27,8 @@ exports.create = (text, callback) => {
 
 };
 
+exports.createAsync = Promise.promisify(exports.create);
+
 exports.readAll = (callback) => {
 
   fs.readdir(exports.dataDir, (err, files) => {

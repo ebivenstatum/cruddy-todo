@@ -68,10 +68,10 @@ describe('todos', () => {
 
   describe('create', () => {
     it('should create a new file for each todo', (done) => {
-      todos.create('todo1', (err, data) => {
+      todos.createAsync('todo1', (err, data) => {
         const todoCount = fs.readdirSync(todos.dataDir).length;
         expect(todoCount).to.equal(1);
-        todos.create('todo2', (err, data) => {
+        todos.createAsync('todo2', (err, data) => {
           expect(fs.readdirSync(todos.dataDir)).to.have.lengthOf(2);
           done();
         });
@@ -80,7 +80,7 @@ describe('todos', () => {
 
     it('should use the generated unique id as the filename', (done) => {
       fs.writeFileSync(counter.counterFile, '00142');
-      todos.create('buy fireworks', (err, todo) => {
+      todos.createAsync('buy fireworks', (err, todo) => {
         const todoExists = fs.existsSync(path.join(todos.dataDir, '00143.txt'));
         expect(todoExists).to.be.true;
         done();
@@ -89,7 +89,7 @@ describe('todos', () => {
 
     it('should only save todo text contents in file', (done) => {
       const todoText = 'walk the dog';
-      todos.create(todoText, (err, todo) => {
+      todos.createAsync(todoText, (err, todo) => {
         const todoFileContents = fs.readFileSync(path.join(todos.dataDir, `${todo.id}.txt`)).toString();
         expect(todoFileContents).to.equal(todoText);
         done();
@@ -98,7 +98,7 @@ describe('todos', () => {
 
     it('should pass a todo object to the callback on success', (done) => {
       const todoText = 'refactor callbacks to promises';
-      todos.create(todoText, (err, todo) => {
+      todos.createAsync(todoText, (err, todo) => {
         expect(todo).to.include({ text: todoText });
         expect(todo).to.have.property('id');
         done();
